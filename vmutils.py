@@ -1,6 +1,8 @@
 from pyVmomi import vim
 from pyVim.connect import SmartConnect, Disconnect
 import time
+import socket
+import os
 
 def _get_obj(content, vimtype, name):
     """
@@ -90,3 +92,31 @@ def get_registered_vms(si):
     Returns all vms
     """
     return _get_all_objs(si.RetrieveContent(), [vim.VirtualMachine])
+
+####check ip valid or online
+####2016-12-12
+
+def is_valid_ip(ip):  
+    """Returns true if the given string is a well-formed IP address. 
+ 
+    Supports IPv4.
+    """  
+    if len(ip.split('.')) < 4:return False
+    if not ip or '\x00' in ip:  
+        # getaddrinfo resolves empty strings to localhost, and truncates  
+        # on zero bytes.  
+        return False  
+    try:  
+        res = socket.getaddrinfo(ip, 0, socket.AF_UNSPEC,  
+                                 socket.SOCK_STREAM,  
+                                 0, socket.AI_NUMERICHOST)  
+        return bool(res)  
+    except socket.gaierror as e:  
+        if e.args[0] == socket.EAI_NONAME:  
+            return False  
+        raise  
+    return True
+
+def is_online_ip(ip):
+    cmd = 'ping -c 1 -w 1 %s &>/dev/null' %(ip)
+    return os.system(cmd)
