@@ -36,7 +36,7 @@ vmconf = vim.vm.ConfigSpec(numCPUs=1, memoryMB=mem)
 adaptermap = vim.vm.customization.AdapterMapping()
 adaptermap.adapter = vim.vm.customization.IPSettings(ip=vim.vm.customization.DhcpIpGenerator(), dnsDomain='domain.local')
 # static ip
-#adaptermap.adapter = vim.vm.customization.IPSettings(ip=vim.vm.customization.FixedIp(address='10.0.1.10'),
+#adaptermap.adapter = vim.vm.customization.IPSettings(ip=vim.vm.customization.FixedIp(ipAddress='10.0.1.10'),
 #                                                     subnetMask='255.255.255.0', gateway='10.0.0.1')
 
 # IP
