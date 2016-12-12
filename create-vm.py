@@ -30,19 +30,35 @@ Notes:
 #mem = 512 * 1024 # convert to GB
 mem = 512  # MB
 vmconf = vim.vm.ConfigSpec(numCPUs=1, memoryMB=mem)
+ipConf='10.0.1.10'
+netMask='255.255.255.0'
+gateWay='10.0.0.1'
+dnsDefault=['8.8.8.8', '114.114.114.114']
 #vmconf.deviceChange = devices
 
 # Network adapter settings
 adaptermap = vim.vm.customization.AdapterMapping()
-adaptermap.adapter = vim.vm.customization.IPSettings(ip=vim.vm.customization.DhcpIpGenerator(), dnsDomain='domain.local')
-# static ip
-#adaptermap.adapter = vim.vm.customization.IPSettings(ip=vim.vm.customization.FixedIp(ipAddress='10.0.1.10'),
-#                                                     subnetMask='255.255.255.0', gateway='10.0.0.1')
+if vmutils.is_valid_ip(ipConf) and len(ipConf.strip()) > 0 and len(netMask.strip()) > 0:
+	if not vmutils.is_online_ip(ipConf):
+		print 'ERROR: %s IP address already exists!' %(ipConf)
+		sys.exit()
+	# static ip
+	#adaptermap.adapter = vim.vm.customization.IPSettings(ip=vim.vm.customization.FixedIp(ipAddress='10.0.1.10'),
+	#                                                     subnetMask='255.255.255.0', gateway='10.0.0.1')
+	adaptermap.adapter = vim.vm.customization.IPSettings(ip=vim.vm.customization.FixedIp(ipAddress=ipConf),subnetMask=netMask, gateway=gateWay)
+	print '%s VirtualMachine Static IP Configuration successfully!' %(newvm)
+
+else:
+	# DHCP Configuration
+	adaptermap.adapter = vim.vm.customization.IPSettings(ip=vim.vm.customization.DhcpIpGenerator(), dnsDomain='domain.local')
+	print '%s VirtualMachine DHCP Configuration successfully!' %(newvm)
+
 
 # IP
-globalip = vim.vm.customization.GlobalIPSettings()
+#globalip = vim.vm.customization.GlobalIPSettings()
 # for static ip
 #globalip = vim.vm.customization.GlobalIPSettings(dnsServerList=['10.0.1.4', '10.0.1.1'])
+globalip = vim.vm.customization.GlobalIPSettings(dnsServerList=dnsDefault)
 
 # Hostname settings
 ident = vim.vm.customization.LinuxPrep(domain='domain.local', hostName=vim.vm.customization.FixedName(name=newvm))
